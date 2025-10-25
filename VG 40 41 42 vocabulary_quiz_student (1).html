@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Vocabulary Quiz — Mr.AhmedSamir</title>
+  <style>
+    :root{
+      --bg:#0f172a; --ink:#e5e7eb; --card:#0b1222; --border:#223052;
+      --accent:#22d3ee; --accent2:#a78bfa; --warn:#fbbf24; --good:#34d399; --bad:#f87171;
+    }
+    *{box-sizing:border-box} body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,"Noto Sans",sans-serif;background:#0f172a;color:var(--ink)}
+    header{padding:16px;border-bottom:1px solid #1f2937;background:linear-gradient(135deg,#0b1222,#121a31);position:sticky;top:0;z-index:10}
+    .wrap{max-width:900px;margin:0 auto;padding:16px}
+    h1{margin:0;font-size:clamp(22px,4vw,30px)} .sub{opacity:.8}
+    .card{background:#0b1222;border:1px solid var(--border);border-radius:16px;padding:16px;box-shadow:0 10px 30px #0006}
+    label{display:block;font-weight:600;margin-bottom:6px}
+    input,button{font:inherit}
+    input{width:100%;background:#07101f;color:var(--ink);border:1px solid var(--border);border-radius:12px;padding:12px 14px;outline:none}
+    button{appearance:none;border:none;border-radius:12px;padding:12px 18px;font-weight:700;letter-spacing:.2px;cursor:pointer;color:#061021;background:linear-gradient(135deg,var(--accent),var(--accent2))}
+    button.ghost{background:transparent;color:var(--ink);border:1px dashed var(--border)}
+    .row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .pill{display:inline-block;background:#07101f;border:1px solid var(--border);border-radius:999px;padding:6px 10px;font-weight:600}
+    .timer{font-variant-numeric:tabular-nums;color:var(--warn);font-weight:800}
+    .hidden{display:none}
+    .grid-choices{display:grid;gap:8px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+    .mcq-choice{display:flex;gap:10px;align-items:center;background:#07101f;border:1px solid var(--border);border-radius:12px;padding:10px 12px}
+    .q{margin:16px 0} .q h3{margin:0 0 6px;font-size:18px}
+    .answer{margin-top:10px;padding:10px;border-radius:12px;background:#081322;border:1px dashed var(--border)}
+    .correct{background:#06261a;border-color:#14532d} .wrong{background:#261006;border-color:#7f1d1d}
+    footer{padding:24px;text-align:center;opacity:.7}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap">
+      <h1>Mr.AhmedSamir</h1>
+      <div class="sub">01551117511 • Vocabulary Quiz (50Q)</div>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="card" id="intro">
+      <div class="row">
+        <div>
+          <label for="studentName">Student name</label>
+          <input id="studentName" placeholder="Full name" required>
+        </div>
+        <div>
+          <label for="studentEmail">Email</label>
+          <input id="studentEmail" type="email" placeholder="name@example.com" required>
+        </div>
+      </div>
+      <p style="margin:10px 0 0">
+        <span class="pill">Time limit: <strong>15 min</strong></span>
+        &nbsp; <span class="pill">Remaining: <span id="timer" class="timer">--:--</span></span>
+      </p>
+      <p class="sub" style="margin:8px 0 0">This quiz auto-submits when time ends. One attempt per email (per device unless your teacher enables cross-device locking).</p>
+      <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">
+        <button id="btnStart">Start quiz</button>
+        <button id="btnReset" class="ghost">Reset</button>
+      </div>
+    </section>
+
+    <section id="quizArea" class="card hidden"></section>
+    <section id="resultsArea" class="card hidden"></section>
+  </main>
+
+  <footer>© <span id="year"></span> Mr.AhmedSamir</footer>
+
+  <script>
+    const byId = id => document.getElementById(id);
+    const shuffle = arr => { const a=[...arr]; for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; };
+    const html = (s,...v)=>s.map((x,i)=>x+(v[i]??"")).join("");
+
+    const CONFIG = {
+      quizId: 'VOCAB-U1-50',
+      title: 'Vocabulary — Synonyms (50Q)',
+      timeLimitMinutes: 15,
+      toEmail: 'ahmedsamiir991999@gmail.com'
+    };
+
+    const ITEMS = [
+      {q:'loaf', a:'idle', d:['argue','fear','gather']},
+      {q:'lounge', a:'relax', d:['shout','divide','predict']},
+      {q:'nap', a:'doze', d:['cook','race','measure']},
+      {q:'snooze', a:'slumber', d:['wander','argue','gasp']},
+      {q:'snore', a:'saw logs', d:['whisper','hum','whine']},
+      {q:'squeeze', a:'compress', d:['stretch','glance','scatter']},
+      {q:'jab', a:'poke', d:['lick','laugh','float']},
+      {q:'poke', a:'prod', d:['paint','boil','close']},
+      {q:'smudge', a:'blur', d:['polish','inflate','freeze']},
+      {q:'stroke', a:'caress', d:['ignore','repair','explode']},
+      {q:'force', a:'compel', d:['allow','avoid','whisper']},
+      {q:'nudge', a:'push', d:['hide','melt','drip']},
+      {q:'crawl', a:'creep', d:['jump','yell','sink']},
+      {q:'march', a:'parade', d:['whisper','forget','slice']},
+      {q:'plod', a:'trudge', d:['sprint','cheer','calculate']},
+      {q:'stride', a:'walk with long steps', d:['sleep','eat','argue']},
+      {q:'strut', a:'swagger', d:['beg','shiver','whisper']},
+      {q:'stroll', a:'amble', d:['plan','repair','divide']},
+      {q:'bolt', a:'dash', d:['float','kneel','reduce']},
+      {q:'dart', a:'rush', d:['peel','mourn','bathe']},
+      {q:'run', a:'sprint', d:['pause','suppose','balance']},
+      {q:'scurry', a:'hurry', d:['linger','knead','angle']},
+      {q:'skip', a:'hop', d:['melt','drip','sigh']},
+      {q:'leap', a:'jump', d:['sew','blame','whisper']},
+      {q:'grasp', a:'clutch', d:['release','smell','divide']},
+      {q:'crave', a:'long for', d:['reject','confuse','doubt']},
+      {q:'yearn', a:'pine for', d:['stare at','boast','brush']},
+      {q:'ask', a:'inquire', d:['depart','whine','fold']},
+      {q:'beg', a:'implore', d:['decorate','jog','mutter']},
+      {q:'question', a:'interrogate', d:['imagine','stall','sail']},
+      {q:'dine', a:'eat', d:['mourn','peel','float']},
+      {q:'graze', a:'nibble', d:['return','glisten','shout']},
+      {q:'guzzle', a:'drink', d:['stare','stitch','smear']},
+      {q:'munch', a:'chew', d:['comb','yell','glue']},
+      {q:'slurp', a:'sip noisily', d:['glide','tremble','wonder']},
+      {q:'sigh', a:'exhale', d:['enter','sprint','clap']},
+      {q:'huff', a:'blow sharply', d:['sleep','approve','weigh']},
+      {q:'whisper', a:'murmur', d:['shout','march','glare']},
+      {q:'bellow', a:'roar', d:['sneeze','polish','borrow']},
+      {q:'cry', a:'weep', d:['peel','plant','drop']},
+      {q:'howl', a:'wail', d:['kneel','join','float']},
+      {q:'roar', a:'thunder', d:['mend','whisper','sow']},
+      {q:'shout', a:'yell', d:['mix','pour','fold']},
+      {q:'shriek', a:'scream', d:['soak','sketch','sweep']},
+      {q:'boast', a:'brag', d:['boil','bury','bake']},
+      {q:'teach', a:'instruct', d:['ignore','repeat','drain']},
+      {q:'dig', a:'excavate', d:['float','stroll','peel']},
+      {q:'aid', a:'assist', d:['divide','delay','deny']},
+      {q:'build', a:'construct', d:['erase','melt','slip']},
+      {q:'close', a:'shut', d:['begin','yawn','sprout']}
+    ];
+
+    const QUESTIONS = ITEMS.map(it=>{
+      const choices = shuffle([it.a, ...it.d]).slice(0,4);
+      const answerIndex = choices.indexOf(it.a);
+      return {type:'mcq', question:`Choose the closest synonym: “${it.q}”`, choices, answerIndex, explanation:`Synonym of “${it.q}” is “${it.a}”.`};
+    });
+
+    let QUIZ = { items: [], startAt:null, endAt:null, score:0 };
+
+    function renderQuiz(){
+      const area = byId('quizArea'); area.innerHTML='';
+      QUIZ.items.forEach((it,idx)=>{
+        const n=idx+1; const map = shuffle(it.choices.map((c,i)=>({i,c}))); it._map=map.map(o=>o.i);
+        const block = html`
+          <div class="q" data-qid="${idx}" data-type="mcq">
+            <h3>${n}. ${it.question}</h3>
+            <div class="grid-choices">
+              ${map.map((o,k)=>`<label class="mcq-choice"><input type="radio" name="q${idx}" value="${k}"> ${it.choices[o.i]}</label>`).join('')}
+            </div>
+          </div>`;
+        area.insertAdjacentHTML('beforeend', block);
+      });
+      area.insertAdjacentHTML('beforeend', `<div style="margin-top:12px;display:flex;gap:8px"><button id="btnSubmit">Submit</button></div>`);
+      byId('btnSubmit').onclick=submitQuiz;
+    }
+
+    const TIMER={remain:0,t:null};
+    function startTimer(mins){
+      TIMER.remain = Math.max(1,Math.round(mins*60)); updateTimer();
+      TIMER.t=setInterval(()=>{TIMER.remain--; updateTimer(); if(TIMER.remain<=0){clearInterval(TIMER.t); submitQuiz(true);} },1000);
+    }
+    function updateTimer(){
+      const m=Math.floor(TIMER.remain/60), s=String(TIMER.remain%60).padStart(2,'0'); byId('timer').textContent=`${m}:${s}`;
+    }
+
+    byId('btnStart').onclick=()=>{
+      const name=byId('studentName').value.trim();
+      const email=byId('studentEmail').value.trim().toLowerCase();
+      if(!name || !email){ alert('Enter your name and a valid email.'); return; }
+      if(localStorage.getItem(`attempt:${CONFIG.quizId}:${email}`)){ alert('This email has already submitted this quiz on this device.'); return; }
+      QUIZ.items = shuffle(QUESTIONS).map(x=>({...x}));
+      renderQuiz();
+      byId('quizArea').classList.remove('hidden');
+      byId('resultsArea').classList.add('hidden');
+      startTimer(CONFIG.timeLimitMinutes);
+      byId('studentName').disabled=true; byId('studentEmail').disabled=true; byId('btnStart').disabled=true;
+    };
+    byId('btnReset').onclick=()=>{ clearInterval(TIMER.t); byId('timer').textContent='--:--'; byId('studentName').disabled=false; byId('studentEmail').disabled=false; byId('btnStart').disabled=false; byId('quizArea').classList.add('hidden'); byId('resultsArea').classList.add('hidden'); };
+
+    function submitQuiz(auto=false){
+      if(byId('btnSubmit')) byId('btnSubmit').disabled=true;
+      clearInterval(TIMER.t);
+      const area=byId('quizArea'); let score=0;
+      const detail=[];
+      QUIZ.items.forEach((it,idx)=>{
+        const node=area.querySelector(`.q[data-qid="${idx}"]`);
+        const sel=node.querySelector('input[type=radio]:checked'); const picked=sel?parseInt(sel.value,10):-1;
+        const correct=it._map.indexOf(it.answerIndex);
+        const ok=picked===correct; if(ok) score+=1;
+        detail.push({n:idx+1, ok, text:`Your: ${picked>=0? it.choices[it._map[picked]]:'(no answer)'} | Correct: ${it.choices[it.answerIndex]}`,exp:it.explanation});
+      });
+      QUIZ.score=score; QUIZ.endAt=new Date();
+      const email=byId('studentEmail').value.trim().toLowerCase();
+      try{ localStorage.setItem(`attempt:${CONFIG.quizId}:${email}`, new Date().toISOString()); }catch(_){}
+
+      const percent=Math.round((score/QUESTIONS.length)*100);
+      const res=byId('resultsArea'); res.innerHTML = html`
+        <h2 style="margin:0 0 6px">${CONFIG.title} — Results</h2>
+        <div class="pill">${byId('studentName').value} • ${email}</div>
+        <p><strong>Score:</strong> ${score} / ${QUESTIONS.length} (${percent}%)</p>
+        ${detail.map(d=>`<div class="answer ${d.ok?'correct':'wrong'}"><strong>Q${d.n}</strong> — ${d.text}<br>${d.exp?('Explanation: '+d.exp):''}</div>`).join('')}
+      `;
+      byId('resultsArea').classList.remove('hidden');
+
+      const subject=`${CONFIG.title} — ${byId('studentName').value} (${percent}%)`;
+      const body=[
+        `Student: ${byId('studentName').value}`,
+        `Email: ${email}`,
+        `Quiz: ${CONFIG.title} (ID: ${CONFIG.quizId})`,
+        `Score: ${score}/${QUESTIONS.length} (${percent}%)`,
+        '',
+        'Mistakes / Notes:',
+        ...detail.filter(d=>!d.ok).map(d=>`Q${d.n} → ${d.text}. ${d.exp?('Explanation: '+d.exp):''}`)
+      ].join('\n');
+      const a=document.createElement('a'); a.href=`mailto:${'ahmedsamiir991999@gmail.com'}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`; a.style.display='none'; document.body.appendChild(a); a.click(); a.remove();
+    }
+
+    byId('year').textContent=new Date().getFullYear();
+  </script>
+</body>
+</html>
