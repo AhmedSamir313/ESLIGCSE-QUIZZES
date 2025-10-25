@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mr. Ahmed Samir's Vocabulary Quiz</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+
+        :root {
+            --primary-color: #007BFF;
+            --secondary-color: #0056b3;
+            --background-color: #f4f7f9;
+            --card-background: #ffffff;
+            --text-color: #333;
+            --correct-color: #28a745;
+            --incorrect-color: #dc3545;
+            --light-gray: #e9ecef;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .quiz-container {
+            width: 100%;
+            max-width: 800px;
+            background-color: var(--card-background);
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .quiz-header {
+            padding: 20px 30px;
+            background-color: var(--primary-color);
+            color: white;
+            text-align: center;
+            position: relative;
+        }
+
+        .quiz-header h1 {
+            margin: 0;
+            font-size: 1.2em;
+            font-weight: 600;
+        }
+
+        .quiz-header p {
+            margin: 5px 0 0;
+            font-size: 0.9em;
+        }
+        
+        .logo-img {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            border: 2px solid white;
+            box-shadow: 0 0 8px rgba(0,0,0,0.2);
+        }
+
+        .quiz-body {
+            padding: 30px;
+        }
+
+        #start-screen h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+        
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            background-color: var(--primary-color);
+            color: white;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .btn:hover {
+            background-color: var(--secondary-color);
+        }
+
+        #quiz-screen {
+            position: relative;
+        }
+        
+        #timer {
+            position: absolute;
+            top: -20px;
+            right: 0px;
+            background-color: var(--secondary-color);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 1.1em;
+        }
+
+        #progress {
+            text-align: center;
+            font-weight: 600;
+            color: #777;
+            margin-bottom: 20px;
+        }
+        
+        #question-text {
+            font-size: 1.3em;
+            font-weight: 600;
+            margin-bottom: 25px;
+            text-align: center;
+            line-height: 1.5;
+        }
+        
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .option-btn {
+            padding: 15px;
+            border: 2px solid var(--light-gray);
+            border-radius: 8px;
+            background-color: var(--card-background);
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: left;
+            font-size: 1em;
+        }
+
+        .option-btn:hover:not([disabled]) {
+            border-color: var(--primary-color);
+            background-color: #e6f2ff;
+        }
+
+        .option-btn:disabled {
+            cursor: not-allowed;
+        }
+        
+        .option-btn.correct {
+            background-color: var(--correct-color);
+            border-color: var(--correct-color);
+            color: white;
+            font-weight: bold;
+        }
+
+        .option-btn.incorrect {
+            background-color: var(--incorrect-color);
+            border-color: var(--incorrect-color);
+            color: white;
+            font-weight: bold;
+        }
+
+        #results-screen h2 {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        
+        #score-text {
+            text-align: center;
+            font-size: 2em;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 25px;
+        }
+        
+        #review-section {
+            margin-top: 30px;
+        }
+
+        .review-question {
+            background-color: #f8f9fa;
+            border: 1px solid var(--light-gray);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .review-question p {
+            margin: 0 0 10px 0;
+        }
+        
+        .review-question .user-answer.correct {
+            color: var(--correct-color);
+        }
+
+        .review-question .user-answer.incorrect {
+            color: var(--incorrect-color);
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .mailto-link {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: var(--correct-color);
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        @media (max-width: 600px) {
+            .options-grid {
+                grid-template-columns: 1fr;
+            }
+            body {
+                padding: 10px;
+            }
+             .logo-img {
+                width: 60px;
+                height: 60px;
+                top: 8px;
+                right: 10px;
+            }
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="quiz-container">
+        <header class="quiz-header">
+            <img src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAApkZXNjAAAA/AAAAHxjcHJ0AAABfAAAAA53dHB0AAABoAAAAAhjaGFkAAABrAAAACxyWFlaAAAB2AAAABRiWFlaAAAB7AAAABRnWFlaAAACAAAAABRkZXNjAAAAAAAAAANjMgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAB0ZXh0AAAAAENvcHlyaWdodCAoYykgMTk5OCBIZXdsZXR0LVBhY2thcmQgQ29tcGFueQAAAGN1cnYAAAAAAAAAAQIzAADoUQAA+lh///+8WFlaIAAAAAAAAEw9VENyAAAAIAAAD3Y///+8LwAAAAAASATR//+3Q////+7f///4uQAA/uUAAP+m/9gABAEAAQABAAEAAP/bAIQAAgICAgICAgICAgMCAgIDBAMCAgMEBQQEBAQEBQYFBQUFBQUGBgcHCAcHBgkJCgoJCQwMDAwMDAwMDAwMDAwMDAEDAwMFBAUJBgYJDQsJCw0PDg4ODg8PDAwMDAwPDwwMDAwMDA8MDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwM/8AARCAEsASwDAREAAhEBAxEB/8QAHQAAAQUBAQEBAAAAAAAAAAAABgECBAUHAwgACf/EAEwQAAEDAwIEAwQFBwYMBwAAAAECAwQABREGEiExQQcTIlFhFHGBkSMyoSNCscEJFTNSYnOCkqKywtFDY3R1s+ImRVR0hJSjw/Dx/8QAGwEAAgMBAQEAAAAAAAAAAAAAAAQBAgMFBgf/xAAzEQACAQMCAwUHBQEBAQAAAAAAAQIDERIUITFBUQUTIjJhcYGRocHwscEjNELh8RQVYkP/2gAMAwEAAhEDEQA/APxOUpSgFKUoBSlKAUr3CiLlyG2GULdeWQlKEJyVHsAKm+uPCHVXD999u52Gcq2oSFpnsMrcjuJ9QoDwn6Ec86s6dSdNShF2ZGUVJWZSaVlZWVUlhSlKAUpSgFKUoBSlKAUpSgFKUoBSlKAUpSgFKUoBSlKAUpSgFKUoBSlKAUpSgFKUoBSlKA+0tqWQlKSpR6ADJNbHw34bXni/V0CxWRCV3KSVlJWdqUpSkqUo+wAJ+nKsvhS9uafiXY1bVlKrlGBA5g+InvWqfsv9I38z65/wC+Hfr8U/P/AHa9bDYem8PUm1qjy+L/ALPDxlWpDEU4xek/o/qeg62+yx4u6I1TcdPXZqxu3W3uFp8MvOLQFjoNwTzHceor66J+yg4w67tCLtbLLGiW1xO5t64v8AlqcHcp2gKJB8iAK179k3P8A7GPEH+1G/wD6UivM1V0bwr+yS1fIuN30tq6Lp266dusiQ0xJbQ4y4wtxSkrQpC8EA55EA+lUa2GpvFzhTjaKW6/wC5tQxVZYWE6m8m+h4r4peGOr/AAk1S9pzXLSES20B1p1tW5p9onAWg+RII+oNWG4cM604f8O6a4mG7MqsF+WlDDSFK3tkpKgVg4xzB5Vsv7LT/aC6r+rM/8ApSK19C/8Uzwb/wC8Wv6bivMjhqTxeW6d4p7b7n+x6U8TNYZZ6VpPffb/e5T+Jukb3w74g3TTmqn2nr/CcQZDjSy4krKEqGFEAkgKA6Vj+KPC3UnCXVMrS+q2wl9lIW083ktvtnolB6g4IPkQavPj3/AOTbxd/9qMf90mrv9lC4y39p/W19QjK48FhB+S9y1j94RW0MNSeJjSv3ZJa/3RjjxNSOGlV5JvT/ALb+Z5fpm3S7xqC2W60uJYuct9DLDi1bUpWo4SSevMjlX6y4M/ZN8b9MaHk6u1Tq7Tq7fBZEiVHiLdceYQCArrgZAIJAJxz5V+P7FeLnp2+wbvYpKo1ygupfYdSAdq0nIOCMfUV+y+A37JfU2rOGz+qtXajtEm73GA5cGbSwy6tCdoKkBaiQkE4BIAPUAnrXN0PD0rTezV3+Tbx1Wt7qprp2R+P+IOkbnw519e9I6gU0u6Wl8MPqZVubKgAcg/Qiu4fsg+NuutP6W19cb5Y59r07JbaTGlupARIKk4Rt7nlkfQV4c1FqS9apvs2+6kuMi53aasuyJDysqcVjGfgMDkB0AAr6611ReNc6mud+1O+JV3nuF19wICApWMch0AAA+Qr0Y0JxqxjUekVt/Luec60XCTgtZPb5dzbvh1+z/4u+JWlhrDSibKxZ1KUhpU2SpDi1JOCCkJUAMgjJPStJcVeEHE/wAOdRxtPa7tqLe+8hLsaQ05vYeSThQSrAJB8CAa/Tv7H79oPws4acGbfpS/Wp256jty3lPyo0JDgmb1lYccWRlXIgYyQAMDpz/Kfjdxy1f4m64l6r1lJC3V/usRkEmNGTnCWkZ6Dn16kk96w4ihGhSlTpxU3dX9P8A3s04aUq1SM5tqFrW9Tz6ldT4F+F87xd4p2vQ9tnpt8qa266p9xO4JShJUcDv0/Wv1XoX9jHrTSd5tGrX+LNt09cbY6h/yhYV+DUD1SvLg2kfIj/lXr0MFiMXFzgrpeZ49fGUaDSm7XPxXSv0d+2l4b6D4b6/01G4csUSwQJluU4+xEBAW4FnBOSefKsFwv8AshuL3EzQMHW2nm7G3YZyC5FU9LUha0g4yQEEDn61V4CqpSpq9k1sXXpOlKpdK/U8G0rw91jrK2XW5aT01c7zBtaQ5MdiMlYYSATk/AEK5Dpz5VeP3M3FX9zX7+W0JjX7+8x5S9rW9O34E7iVfFWMY51s3wo4qan8KtfytKaphDylIU7GktAlp9vONyD9eYPI5r9x3b9pDwd4KcA7TqHUFg+3GrJcJJds6ozZWhtSSNqlrxsSk454JJ5460YPCwrQnWqWaj8uQY7ESpShSp3Tf8AFz8S8V/D7WfBLVrGl+IEdmHc3o6ZaG2Xg6A0pSkgkgdNqD+VZdG6WvutdSQNO6Vt711vctWxmMyMlR7knoAO55CvRx4r+ImqfE3X8vV2ry2w4U+TxYiFFLDKCcBIJ6nnknqSfUmp34F/ts+J3g14f2/hun6D09OtcF115tyW06p0qcWVkEhYHU45Vo+hqOvyvj13J+qpaK/Z8e+56p4meBPE3wjtbV14gW+3R7fJd8m25ElK1KV1wAMZ5V5tr9c3z9j1pDV0aLdNea9iWq7pZDqoMRl0tIWQCVFSSMkd+YB6A9q/FvjJxr1L4m8UrprnU7TMOfPQ0gssghttKEpSAATnrk9epq/YfGxxZ/gNo7/AHd/71Z8XhqVOtBYZNJLZ+r1NXD16k6cnXXMmt16Hx4T6T1RxR4h2TSmkJTLF+uSyiMtxzaMEFRGcE9AfKt0/sh+MOrfE7Sml+D9guFlRoK0vNOXq5vvFK0L2KC84GAnKieZ54HqR+SNOX266XvkW86cnvwLnGWFsvsHCkqFa48I/B7X3jLr51zSjDUePGeU5db3KUUstrJJK1ZGVLJJOMknmcDnW+jg6c6c61d2jHX8eRlxGJqQnGjRV5PT8eZ+hfs+vszvEnww8UtPa4k6o045boq3I8hqOpxa1NOp2qIBSACOR5+tfl/xt/wCSN4k/7Qv/AO4r9u8c/wBojYvD/XPC3wQ4T6eiQdUWy6MQbpcY7O4tZVtbbQ2OQKjklR5AYx1Jr8Pf/AIx3H+1X/wD3Fd/TFGmqK91e89vY8zoipOVV7xtu97+g0vwy1xrXRuoNaaZtDtx03pxKV3OQ2tO1gEE5AJ3Hp0B6V9dEcF+KHF3hxfNc6ZRHlacsQUt/a8EuqSBlW1GOSgDk55d67b+xk/5OniJ/uqf+q5V7+xc+yWc4n3BvjFxhS/b9HWV4SrZFcRtcnuoOUKUk/caUByfvEdh1FeVS4enOq6lR2jZp/c66vEVKcFSgrzun/AGfB+PNOaPv2ptN6kv1obQ5atOsIfulpZ2oZSpSkgknmTkDp0rU37PzwKvfjn4hL0Xa7qNP+SRXLr8I+Q2eT95lKcbt25Q3+JIzjJxW1uN3H63cLP2tHFTW+kI0TUVvt76IseG8NzDi1x2W8kDIxheR16V3b9iVx3snDzx9v8ApC021q3aa4nOKnuoZRsbjyWyt10ADkArcdOB2SM16+Dw6eKVGaunG9v+Tx6+IksK60Ha8rX/s+PHr9kFxd8NOI0vR9s0xYtRMsstPtzbfvDSwpIJHNJHPn9K+PhT+yJ4p+IfET+B2pNPae0s4Y63g/cElKFLSeW0qCeYPLnXt37evT8S8eMvhmzIbCkXuK4y6COYK5DaT/wC6vO32p/E7VfBP9rvZtZ6DuSrdeYen2EJOOUhBW6lTa/VJI/qO1eLWoYWGMlTUE4tX1+K/Q9WjXxMsFGbm1JO3o3+p5x4s+B3EPwJ1Da7Prt21TE3aMuTFlWx5TrS0pVtUMqSkgg46eormHBrw64pcQ75G1Jwm027e7pp59h1wJWhsNE5UApS1DOdhxjPWv1Z+3i0+3q7w+4R8Z4jXmP31pTj6h+Jl1pt0j/wA3415R+xL/AOR/1D/te//AHUVyPhqf6iKb0cbv/k6/rU1+nlFaO9l/wAhH/ZFeIHix4gW7R+pNGacslrksvOKkW7yhdykEkYKkkcuVXHxF/ZNcb/CnQ83Wuo4un7naIKQuSbdKW440jONxSpCTgZ5nnjnX6P/aJ+L3DrwA4j6X4s+GukbZ/CS4RG7dfI0dlKQ6lS+bbrg5q2rSMEk4J6c6/Mn7Wjxv1Xxo4y3HTl2tbdmtWiJEq2xoaFlf4wtO51wkdd23A7BI9TTGYTCU6FSEIK8V3vW4YHE4mdenOcrRlsvS+h+Z6UpXzZ7AUrrfhP8AssuPPiRodjiDozTdve05JLqGXn5yGlrLawhXtOD+IHiuReKXhTrvwi1mNJcVrZHt16LDcpKEPIeSplZUEnKSR1Sea0lQqQi5yWyMJVIycYvdsxvhUceLOgP9tMf/AN4rp32XfEnRPhr4wae1jxCuyLXYoMeSl59aFrAUplSUjalJUeZHSvKOCt8s+meKGl7zqR9UazQLkxIkupbLikJSoEkJAyflX6G8NP2gPw+8TeOujLVoW/wAq/cQn5JjTIgtzifI2rVvO5Sk7eQ3HkTXv9D+KjVT/472+J5vSn2lSj/AIna/wAB3/8AbZ4s+CviD4jWLUHCzVTN7trNgQ04tLa2lNrS6s7SlxKTzBHMDFan+zb8TNBcFvH2LrbW+pWbJp1qFJbXMeQtaQVJASMJBPMivzPxC/wCTrq7/ALUlf94qrv8AZ5cB9B+Jni3F0bxH1KjSmnFQ3nnJS5CGAsgDbHStw4SVHrnqE47178uGrrG/vK9n1PPji6P9F93ey6Hq/wC188X+EniL4oQNRcI9Vxr/AGVmzNsPPNIWhIcClEpO8A9COVdx8O/2rPhHwV4a6R0fauIcuW1aojMR/yNjkuLKUAKXhSUgknJ515R43fsvLHo3V/DjTPAy9K4iXPUy3EvsJcQ46hKdgS20WxlazlRxyPIdTXM/E79mTx18KeHsvX3EDS0aDplh1plxxu4NONqU4oJSAkAknJHLsa6uVOrGOKrJ8ztay32OVVKtKTw9FrlbvffchP2zHjhoPxF44aS1Rwf1JHv1st1pDDzzKFoSlwOKOxW4A5wR0zX6d+yz47eH3EP8AZ/2PQWsdasQpMCyuWa7W2U27lba0KSlYCUnmNqVH3GK/nvr9B6P+zS42668MdT8bdL2KO/oiwNvKlyVSkJXsZSFrGwnJwpSR05nrXXwmIrRxEp1ZNSirf7OOvSpyoxhSg1FvY8F4hWeHpvX+o7LalyEW+3XCRFZS+QpYQhxSUgkAZwABnAqP1KOK/Arif4fahten+JVhctc+6t+ZF3OpX5qM4yoKBI6jn9KrX2wng5wr8KvEHR+mOCsSNa7hIt+95iNILhkuFWAlISpR3EZOBz58upr5WUK026U42k1f/B79KrCKU4yul/g8+8KfC/WPjJr9vRWg2oT98XHXJDcqQGElCMbjlQweeOXfFdI+1G8GdT+CXidctIXW1u2/Tj7zsrTq1qS4l2LkkJGCSDt25zzBGe+K/XHgV4e6D/AGZ/geOIXFW1tI17fIKZ94ecG95sLGUxWyOiSCBzxnJOOlfkLxy8UNW+NPifftd6pkL3S31It8YnKWImSUNIHQADGT3OT3r0eI4f2sHCjFe+9z5I8/htX28XKq/dWy5s84pSlcJ2FK61+z++y01/476Pna3g6li6M0bFkKh/C8hpS1vLAyhIQkgYGUkk9weXWup+On7F/iF4UeHkrijpbiJY+J2j4aA7cZdpaUksIBAUsgqUlSQSOYB5HryFddLBYiUFUUbpnPLEYeM3Bzsz8x0rMvMOMPrZeQpt1tRSpChgpIOCCPSsNbHYK9wYe+DIdjPtvsLU280sLQpPULByD+Yr1ivQ/gR4OQOMXjfpThPxfRerQxeEyBJYbcXHkIW1HcdSNyk5HNAOcelda+2K8HOCPhR4paa0ZwRkJg256El522Mzi6X3SspCWgpSlA4x7IHPpW8cFUnQlXW0db/wACviqcKsaT3lojwVqO7zJ0mXLdW/KkOKccWrluUo5JPzJqU+M/iFqDxW4r3fiHqxFvZu11Sz5iLewplra00hpOApSlfdQnPOqZ5a/3Z382K9p/Zt/s6NW+N/Hq1cPdRMahtOn50V99y6RoSkpUpCSUoS4oJTuJxzOOfWoxMaEa/vJWSW5eEqk6Xuyum9jy7w+4bX/ijra2aZ0+w66/JdT5jqEDa2wkjctaj0ACSevU4HMgV+3v2X/hX4K/s4NXam4qa08arLqS3w7U5Ag2W1JU2tSnHEKBKlKVuISg4xjlknOK/M37SPwf1V4E+K950Jqa3vRrO3IdlWFxagpEqEVHbtyASQnbuB5g4rzt5az+Ff82K9P+m4ehQdJq83vc83/AFGIrVlUTtFbGq+J95ian4n6tv8AbNwiXW8y5bO4YO1xxS059+RFSbwo8N9UeK3Eu3aD0U3HVfJyXVoMlxLaAlCCpRKj7Ac/M1sDwT/Zy8S/HF92RoqJEtlhYd8s5d7o4WmEODGUAJG5ZAIOAMdMnFc88QdAeIfhBrt7SOuUXXSeqWQlxTLck/jUEkbkLQopUOShzHIjnVv0qjXdaK99723L/AFCoUHSk/cWy9Dw3iRpC68PdZXnSF+Qhu82eSuJJShW5IWk4OCORFa68BvFrVvgh4j2PihocMOXW1FbbiJIJQ8y4NriCRzAI6Hsd/fHifEDWGm/wDCn+Cmo5t5+EPg74S8tz/pM7Nm7HPG1J/Kuq6F/Ze+O/EHSEHVWluF82TZJjYdjOvPx4ylpPQhDq0qH0IqMKtKNaU620lYvVjUnTjClupXuWvx38f+LXj9xMv3FPUl+1FYNOyFIQzb48lxbLTAQhIQ0jO0ZO5RA5qJJyTWpPBfxf1f4N8VIOsdD3GaxFU8lN4gR3i2i4x/vIUARnYZTnoRn2rX/EHQurOE+tJmlNd2x+x6mtykh9lwpUUkgKSoFJIUCCMEHpVo0r4T8adS6Qk6usWgNQzNKsMqkLuLMTc2WUjJcSDguJA6lAUK3jKn72M6L1W3zRjKNL3bpU9N9vlmbg/bW8WrDxo8brxqPSOrHNUacfhMKYeW0ttLRwN6AFJB5EE8hzJNeYvCrw+1R4o8T7NoTRIZXfbmVhkvubEJCUlRKj6AD5nnz5VZtO+EHFfV2kE6y07oK/XbS6lrQJ0aNvQso+8QM7iPmMVYfAnwR4heN/EJGlOG0JgqZT5s24ylFLMZnON6yATzPIDqfkaTq0qlf3mko7vyQp0qlOkva/eeyXjRvgf8AtW5zNn05qi38P8fI7Ibt9mQ08xcFkYAbSp1sK5DPsEj0FeYvFz9mf4qeCNhTqPWenmLlpa/dFzt7gksJB5AuDkoZ5DKgE5IAJNdE8evDvx88A9WWrU2otQT48R6Kli3arsMpbaJTI5p/EAUFA/EQEkDmM4Oa9m/Y2eP194g/s+uI/B/W91du7umLG65pyVJc3rbiKbUks56kJU2Qn6gdgOWpQoYyCnh2pSktfB9TqjWr4OWXiaSjF6Pmj84fsp/FjSvhD402/WmvFyxYEx34T3kqVOKK1jKFYAJOFAZ9ia7N47ftMvDbjBfOButdGq1NbdW8Pb0JSoq4aVpbkNFaFKRtSvJ5N9SPWuD/ALWbw30pwT8feIeiuH8L4Ppy1S2m4rAUVBKVNNrIz/ANpR/OvF6wr4ipDD06M43nF3/D39DRYem8RVqwlaMrW/J69z9b/ALVnxI4deJv7Xnwd1dw4vCL7ZlW5MbyyUKQEqSp3cMKAPUY/Ov3N+xP8A2nPEf9qBpfXkPjVZtL2i66SktpSuxNvNF1p5DgSVb3V5xs6DHUe+flL9jv+xN4leOXh9p3xA0zxO0tpO/xXn0ItdybfVJR5TyUqJSkp7g8z+Ve5fshvCLx18DPFDxHvfFzWGmrrYLZp+bc0x7S66qRL2rQp1ZylKQltJUMEnmRyFe7hKVOUpPDSUYuKVu/7Pnq9ScIxWJg5JSd7dv3PMP/CFvw3/43+EH/wA13/eIrwD9pr9np4h/s/8AV1+4T6WvV6vvAu4Tm7iI8d4txpKFpU4pCkp5JWFLyFAAkA55Yr8Oa315q3ihqmVqniFqG5arv8kguSrjIcdVjoEgnhIHYYAr9yfsVfE27+Jn7P7VngPq25KuOrNFQ5MjTkqSvctyCkqUptJPPaApSMDkAFdhXi4uNSphlHDN8r3Xg+/od+HlTjiG8StbW8+31Pwtr7Q2qeGWsp+kdZ2l+z36AsoejvDmO4Uk8lJPUHpV18N/BvjTxm07edRcItMyr5Z7TlL60rQ2lSwNyktpUQXCAPupz1Herj+0F4uNcf/HXiTxLhrVItV8u63IC1J25jISAySPe2En6mvTv2Cv7UnTvgfr28cP+KrqYvCjX6kty3nE7kwJWdgfUP+GoEpVjsE9hXXg6NOpiOWrrHt8XyOfFVqlLD81HRvfyPg6T4WeM+tvCzxEa1pYrjMtOmvPblXiLDeKFSmQoKKCAQVDl0ODXVP22vjRoXxk8bYGrOC2pU6h00zZmYqn0NOtgOJWpRSQ4lJIwR1FdT/wCChH7L2y6E1nN8afA5qNfuGGp1C5XVm2pC24S1ncZLaRzCD8y32OSnpt/I9W3FU4QWGnTldxf+99TOhCdSqlZq0l8+hs3wZ486g8IPEVnWlkiM3mMGVxJtulebUtpXNQz3BABI747Amu//ALVH9rNxh03xX4Qah8PtfzLBpq32py+3G3x9hblPOlGwrKkknGxQwCBk14T+zR8Ebh46+Lli0Sl1yDpxv8Ju1wbTtLcdBGUgnkFLxtHsSR0Br6/tlvCfTPg3+0E1ToLQMXyaRYosVbTCSpQbC2kLUMn/AFrP1NeY6ND+n+8ivfvt5HquvW/V/dyfu2tfxP01+174z+N/7RDgNwq4n3qOnh9rS+MQZkSHHS0stOJcbKAsgqGQvngg9816n/wU54oao8OfHvgrrXR8nyl2tWnC82RyUhXnKylY7pPIg+lfkf9hj/AMpzwt/2v/8ApSa+237TXhLw/wDCvwh/Zc3vifwz0lru+3K/tPXBu/29uUp0Iku4cK1JJSrAJA5dTW1aVaeElSq/vOL/AEJpRpwxEakPtJ/U+fgn4t6L/bwcBdd+HvjzMhW/iTpyIq5WHU2wNFRSklt5APMAqCSoA7VJz0wR+S/Ev9ln4x8I5t7+EOG2pdRWG3uKQL1DglcdxKTjduB9gHrz2kHPSvq5+yXlJ/aLfs3+LPgppXUNutXEW+qM5ht9wAMo/CJaUlOQQgqS4gnpnaegr3r9i947ca794b63014qaM1Vo/QegLVIjW+4X9lxp1pSUFYcClAJKkp29sEAc66cPTpYhKjVVoSWzf+TlrVqmHbq0neUXut/wCz8v8A7NLxV1z4P+M2j7/obUMzT0eReYkK6ojkBMqKt1KVtrBAKeZOD1BAI5V+j/8Agpb/ACk3CD/2ZP8A+K4a+Vvg/rTSOqP2jmqvGzUunrTo/gppC+vT7vNaZS0iQ8hRQhpIH3nE5G4Dpu65Jx+sv21ngRwn/AGm2gNAeLvD3xS0BpGz6bsSYz8q83BtDjRS4pxTaEEhSVpUnmD0x8q5MPQpwweIrS+1G+h0YirOWKo0o/Zy3sY3gZ4X+APjD4h8PeG2v/HXX+qNZ31tDdt0i0tSWnFFLZLYbKspRtQCQduMDpX5B/a0f/J4+LH+/bn/ANKvV/wP8e9Efsi/2w+nrPoO+x+IPBTXkhizvT4q9yUIdcw06oDJS4hSwrA7b09cV6R/wAFAf2e3C7hZp7UvjDw48TNI63vOp9S+VNs1lmoeW22+4ta14So+ykrJzjoBXNi4RrYV0qSs0rNfF/wCC+FlKhilUnK6b0fwXzPx5pX/lCsX/AGhj/vr6V6d+z78UuJXg7x60rrHhdeH7RdEy248hKVHyn2FKAU24noptJz+Q6V5bpf/lAsX/aGv8Avr97/wDBPv8AZ0aU1Pqa4/tHeL7TLujdCuFyxokAbHJiE/iPkH7raScD++SB7JrLgKUKmI5ZfCvuze4itOlhc0fjXsfnP/gpHwv0nw68ftO6w0jCYtquJVoF4uLDIAT5+5Sg6sDpv3Nkn1ye9fL/8AsBfD7SHiJ+1o0Tp7Xdkj3+ysQ5stMaUgONl1psqQopPInOOD0Ir3j/gqbxasfFz9o3wz4c6ckNTWtEsC5y1tnctL760KQjI6YS2FfVQr1H/AIJ3/s9uJfgp4j648S/FDw+ueutWSoL0e1aTtLC3n1hZCipxKeaVBIQAk46npzryqWGqP6msRHTZ2X/LPejiKf9Go1ddu9/82POv+ConG/iPoj9pfpbRukdX3fT+no2n4k1Me3ylMEuLddSVZSQehH44xX6w/YdeIfFDjh+z40hqvi9ZJcDVLDiojMqWgpemxkAJbdOc7jjaCf4ua/Cv/BQrTvGq/eOGpNX8T+FuoNFWW7PMx7Wxeoi2VbG0JSkJJ5EDaRkV+rf2OPhf+0505pTS941VxhsepeB06yNuItEq5+Y4thbWEN+SG0p24wnGc49K2cLCpWxVaqla236HO8ROlhaVPW99/1PNv+ClP8pLwn/7Muf9c5X5y44cPtZ8Otf3TTfEGM9FvrSg44FvF0LQoZCwo5yD9Olfov/gpH/KS8J/+zLg/65qv3v8AtVvALwb/AGkGhOFWpeJXGmz8LbhZ7WtcZmfIQwuSy4pKg4hSyk7eSgRnzry+Io1K2KqRhZNK+p6HDSjSw1OM72btex+Av2XfjXq3wY8Z9D6i0lfpVqtr94jRLzEacKW5MVxYQoLT0JAUdp6g10T/gozx+4icWf2g+stBaivT87Qml5LUa12tSh5THnsNLUcJABO4Y+X1rpv7Snwv8J/2fX7T/AMOtZ+D2pLPqzQd/f+GX4F25l/Y6hJbeG0knA2tK7/eOOleQf24v+U94y/61n/2TNeXOUqmFjKqv9SV/Z8P2PWhGNPFSUH+qLt77/U8C17wi4l8NdM2C98SNPyNP26/j/B/nLSy++kDJU2jO8JxgE4xnlnJFeHftNfCjXfiPqDTmsNEwUX+w6es7UOdLjPpWmM6FLOFg4KcBSgcDHIdK/Qn/BOS0S9T8Pf2g+n7YnfcZ2n2GGEZxuWpp9IH5kVp/9lP8AtE9O/stfEDVvDjxz4ZyrhY5q/wACusVtsOtqWklLcpvcpJ5ApUCnODnkRXbwvSjGjWbVoq1vR7HH0pCbrUXF3k739V7z4+CniJwj8Ff2T3GLUmlZ+m5PG68J+D7Yw/vU4wtX4Q+t0Kx7BBSgJ5HOc8ia/J9yuEi63GVPmOKdkvrU64tRyVKJySfxNei/tCfGDUfjj4q6h11qWyx9OuylJYj25kAbGEkJQlZAABXgAq5dc9BXndfIY2rCrVVGn8EOnzPoMHSlSpOdX4pb/ACPq04tpYW0tSFp5hSTgj6V+qP+Cd/7RXxA8Q/G28cFdca3vepNDa1s0tE+33OWt9IW035iVAqJIOEqz8/WvylX1o3Vl30rfoN60/Pk2y7RF+ZHlML2rbUO4IrHgMT9NiFUaunsaY7C/UYeVKN79T//2Q==" class="logo-img" alt="Mr. Ahmed Samir Logo">
+            <h1>Mr.AhmedSamir</h1>
+            <p>01551117511</p>
+        </header>
+
+        <main class="quiz-body">
+            <div id="start-screen">
+                <h2>Vocabulary Quiz</h2>
+                <div class="form-group">
+                    <label for="student-name">Full Name:</label>
+                    <input type="text" id="student-name" placeholder="Enter your full name">
+                </div>
+                <div class="form-group">
+                    <label for="student-email">Email:</label>
+                    <input type="email" id="student-email" placeholder="Enter your email">
+                </div>
+                <button class="btn" onclick="startQuiz()">Start Quiz</button>
+            </div>
+
+            <div id="quiz-screen" class="hidden">
+                <div id="timer">15:00</div>
+                <p id="progress"></p>
+                <h3 id="question-text"></h3>
+                <div class="options-grid" id="options-container"></div>
+            </div>
+
+            <div id="results-screen" class="hidden">
+                <h2 id="results-title">Quiz Completed!</h2>
+                <p id="score-text"></p>
+                <div id="review-container">
+                    <h3>Review Your Answers</h3>
+                    <div id="review-section"></div>
+                    <a id="email-results-link" class="mailto-link" href="#">Click Here to Send Your Score</a>
+                    <p style="font-size:0.8em; color:#666; margin-top:10px;">Note: This will open your default email app.</p>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const quizData = [
+            { question: "Which word means 'to lie around lazily'?", options: ["loaf", "squeeze", "jab", "crawl"], answer: "loaf", explanation: "'To loaf' means to idle one's time away, typically by lazing around." },
+            { question: "A synonym for 'nap' is:", options: ["doze", "snore", "prod", "creep"], answer: "doze", explanation: "'Nap' and 'doze' both refer to sleeping lightly for a short period." },
+            { question: "Which word means 'to firmly press something'?", options: ["squeeze", "smudge", "stroke", "wander"], answer: "squeeze", explanation: "'To squeeze' means to firmly press, typically with one's fingers." },
+            { question: "A synonym for 'poke' is:", options: ["jab", "fumble", "grasp", "crave"], answer: "jab", explanation: "'Jab' and 'poke' both mean to prod someone or something quickly with a sharp object or finger." },
+            { question: "Which word means 'to move forward on hands and knees'?", options: ["crawl", "plod", "stride", "bolt"], answer: "crawl", explanation: "'To crawl' is to move slowly with the body close to the ground." },
+            { question: "A synonym for 'march' is:", options: ["parade", "dart", "run", "skip"], answer: "parade", explanation: "'March' and 'parade' both mean to walk in a military manner with a regular measured tread." },
+            { question: "Which word means 'to run away suddenly'?", options: ["bolt", "wander", "grasp", "wish"], answer: "bolt", explanation: "'To bolt' means to run away suddenly, out of control." },
+            { question: "A synonym for 'sprint' is:", options: ["run", "walk", "hold", "laze"], answer: "run", explanation: "'Sprint' and 'run' both mean moving at a speed faster than a walk." },
+            { question: "Which word means 'to handle something clumsily'?", options: ["fumble", "grasp", "hold", "crave"], answer: "fumble", explanation: "'To fumble' means to use the hands clumsily while doing or handling something." },
+            { question: "A synonym for 'desire' is:", options: ["crave", "squeeze", "smudge", "creep"], answer: "crave", explanation: "'Crave' and 'desire' both mean to feel a powerful longing for something." },
+            { question: "Which word means 'to ask a question'?", options: ["inquire", "munch", "graze", "slurp"], answer: "inquire", explanation: "'To inquire' means to ask for information from someone." },
+            { question: "A synonym for 'eat' is:", options: ["devour", "hiss", "sniff", "gasp"], answer: "devour", explanation: "'Devour' is a synonym for eating something hungrily or quickly." },
+            { question: "Which word means 'to drink noisily'?", options: ["slurp", "shout", "whisper", "bellow"], answer: "slurp", explanation: "'To slurp' means to drink or eat something with a loud sucking noise." },
+            { question: "A synonym for 'yell' is:", options: ["shout", "mumble", "whimper", "cry"], answer: "shout", explanation: "'Shout' and 'yell' both mean to speak in a loud voice, often due to anger or excitement." },
+            { question: "Which word means 'to speak very softly'?", options: ["whisper", "scream", "shriek", "bellow"], answer: "whisper", explanation: "'To whisper' means to speak very quietly, using one's breath without one's vocal cords." },
+            { question: "A synonym for 'instruct' is:", options: ["teach", "implore", "cherish", "prize"], answer: "teach", explanation: "'To instruct' and 'to teach' both mean to impart knowledge or skills to someone." },
+            { question: "Which word means 'to look at something for a long time'?", options: ["gaze", "peek", "glance", "exit"], answer: "gaze", explanation: "'To gaze' means to look steadily and intently, especially in admiration, surprise, or thought." },
+            { question: "A synonym for 'depart' is:", options: ["leave", "halt", "chase", "obey"], answer: "leave", explanation: "'To depart' and 'to leave' both mean to go away from a place." },
+            { question: "Which word means 'to move smoothly over a surface'?", options: ["glide", "flow", "ooze", "race"], answer: "glide", explanation: "'To glide' means to move with a smooth, continuous motion, typically with little noise." },
+            { question: "A synonym for 'saturate' is:", options: ["soak", "sprinkle", "splash", "gush"], answer: "soak", explanation: "'To saturate' and 'to soak' both mean to make something thoroughly wet." },
+            { question: "Which word means 'to build or make something'?", options: ["construct", "dig", "aid", "sink"], answer: "construct", explanation: "'To construct' means to build or erect something, typically a building, road, or machine." },
+            { question: "A synonym for 'climb' is:", options: ["ascend", "close", "hope", "brew"], answer: "ascend", explanation: "'To climb' and 'to ascend' both mean to go up or move to a higher position." },
+            { question: "Which word means 'to picture in one's mind'?", options: ["imagine", "liquefy", "burrow", "crumple"], answer: "imagine", explanation: "'To imagine' means to form a mental image or concept of something." },
+            { question: "A synonym for 'wreck' is:", options: ["destroy", "soothe", "aid", "calm"], answer: "destroy", explanation: "'To wreck' and 'to destroy' both mean to put an end to the existence of something by damaging or attacking it." },
+            { question: "Which word means 'to make someone feel thrilled or aroused'?", options: ["excite", "aid", "soothe", "lend a hand"], answer: "excite", explanation: "'To excite' means to cause strong feelings of enthusiasm and eagerness in someone." },
+            { question: "A synonym for 'hope' is:", options: ["wish", "assist", "create", "sink"], answer: "wish", explanation: "'To hope' and 'to wish' both express a desire for something to happen." },
+            { question: "Which word means 'to relax and do things at a slower pace'?", options: ["take it easy", "sow one's wild oats", "tickle the ivories", "wet the baby's head"], answer: "take it easy", explanation: "'Take it easy' is an idiom meaning to relax." },
+            { question: "A synonym for 'laze' is:", options: ["lounge", "squeeze", "prod", "march"], answer: "lounge", explanation: "'Laze' and 'lounge' both mean to lie, sit, or stand in a relaxed or lazy way." },
+            { question: "Which word means 'to sleep heavily, making noises'?", options: ["snore", "nap", "snooze", "rest"], answer: "snore", explanation: "'To snore' means to make a snorting or grunting sound while asleep." },
+            { question: "A synonym for 'nudge' is:", options: ["prod", "caress", "stain", "blur"], answer: "prod", explanation: "'Nudge' and 'prod' both mean to poke someone gently, typically to get their attention." },
+            { question: "Which word means 'to walk slowly and with heavy steps'?", options: ["plod", "creep", "wander", "dart"], answer: "plod", explanation: "'To plod' or 'trudge' means to walk slowly with heavy steps." },
+            { question: "A synonym for 'jump' is:", options: ["hop", "run", "walk", "crawl"], answer: "hop", explanation: "'To jump' and 'to hop' are similar movements, though hopping is often on one foot." },
+            { question: "Which word means 'to get a firm hold of something'?", options: ["grasp", "fumble", "smudge", "jab"], answer: "grasp", explanation: "'To grasp' means to seize and hold something firmly." },
+            { question: "A synonym for 'yearn for' is:", options: ["want", "hold", "lounge", "doze"], answer: "want", explanation: "'To yearn for' something is to have a strong desire or 'want' for it." },
+            { question: "Which word means 'to bite and chew food'?", options: ["munch", "ask", "beg", "graze"], answer: "munch", explanation: "'To munch' means to eat something steadily and often audibly." },
+            { question: "A synonym for 'implore' is:", options: ["beg", "inquire", "ask", "question"], answer: "beg", explanation: "'To implore' is to beg someone earnestly or desperately to do something." },
+            { question: "Which word means 'to make a long, sharp sound'?", options: ["hiss", "gasp", "sniff", "yell"], answer: "hiss", explanation: "'To hiss' is to make a sharp, sibilant sound, like that of a snake." },
+            { question: "A synonym for 'whimper' is:", options: ["cry", "shriek", "scream", "shout"], answer: "cry", explanation: "'To whimper' is a form of crying with low, feeble sounds of fear, pain, or unhappiness." },
+            { question: "Which word means 'to hold dear and value highly'?", options: ["cherish", "prize", "stare", "peek"], answer: "cherish", explanation: "'To cherish' means to protect and care for someone or something lovingly." },
+            { question: "A synonym for 'glance' is:", options: ["look", "gaze", "exit", "chase"], answer: "look", explanation: "'To glance' is to take a brief or hurried look." },
+            { question: "Which word means 'to stop or cease movement'?", options: ["halt", "leave", "follow", "obey"], answer: "halt", explanation: "'To halt' means to bring or come to an abrupt stop." },
+            { question: "A synonym for 'pursue' is:", options: ["chase", "float", "drift", "wander"], answer: "chase", explanation: "'To pursue' and 'to chase' both mean to follow in order to catch or attack." },
+            { question: "Which word means 'to move with a smooth, flowing motion'?", options: ["flow", "race", "speed", "soak"], answer: "flow", explanation: "'To flow' describes the steady, continuous movement of a liquid, gas, or electricity." },
+            { question: "A synonym for 'drench' is:", options: ["saturate", "sprinkle", "sparkle", "gush"], answer: "saturate", explanation: "'To drench' and 'to saturate' both mean to wet something thoroughly." },
+            { question: "Which word means 'to dig a tunnel or hole'?", options: ["excavate", "invent", "combine", "descend"], answer: "excavate", explanation: "'To excavate' means to make a hole or channel by digging." },
+            { question: "A synonym for 'generate' is:", options: ["create", "soothe", "close", "hope"], answer: "create", explanation: "'To generate' and 'to create' both mean to bring something into existence." },
+            { question: "Which word means 'to make something liquid'?", options: ["liquefy", "solidify", "scramble", "wreck"], answer: "liquefy", explanation: "'To liquefy' means to make or become liquid." },
+            { question: "A synonym for 'calm' is:", options: ["soothe", "destroy", "excite", "shout"], answer: "soothe", explanation: "'To calm' and 'to soothe' both mean to make someone feel more peaceful." },
+            { question: "Which word means 'to feel or show pleasure or satisfaction'?", options: ["relish", "lend a hand", "appreciate", "hope"], answer: "relish", explanation: "'To relish' means to enjoy greatly." },
+            { question: "A synonym for 'lend an ear' is:", options: ["pay attention", "create", "hope", "assist"], answer: "pay attention", explanation: "The idiom 'lend an ear' means to listen to someone with sympathy; to 'pay attention'." }
+        ];
+        
+        // DOM Elements
+        const startScreen = document.getElementById('start-screen');
+        const quizScreen = document.getElementById('quiz-screen');
+        const resultsScreen = document.getElementById('results-screen');
+        const studentNameInput = document.getElementById('student-name');
+        const studentEmailInput = document.getElementById('student-email');
+        const timerEl = document.getElementById('timer');
+        const progressEl = document.getElementById('progress');
+        const questionTextEl = document.getElementById('question-text');
+        const optionsContainer = document.getElementById('options-container');
+        const resultsTitleEl = document.getElementById('results-title');
+        const scoreTextEl = document.getElementById('score-text');
+        const reviewSection = document.getElementById('review-section');
+        const emailLink = document.getElementById('email-results-link');
+
+        // Quiz State
+        let questions = [];
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let timerInterval;
+        let timeLeft = 15 * 60; // 15 minutes in seconds
+        let studentName = "";
+        let studentEmail = "";
+        const totalQuestions = 50;
+        let userAnswers = [];
+
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        function startQuiz() {
+            studentName = studentNameInput.value.trim();
+            studentEmail = studentEmailInput.value.trim();
+            if (studentName === "" || studentEmail === "") {
+                alert("Please enter your name and email to start the quiz.");
+                return;
+            }
+            
+            questions = shuffleArray([...quizData]).slice(0, totalQuestions);
+            userAnswers = new Array(questions.length).fill(null);
+            
+            startScreen.classList.add('hidden');
+            quizScreen.classList.remove('hidden');
+            startTimer();
+            displayQuestion();
+        }
+
+        function displayQuestion() {
+            if (currentQuestionIndex >= questions.length) {
+                showResults();
+                return;
+            }
+
+            const currentQuestion = questions[currentQuestionIndex];
+            progressEl.textContent = `Question ${currentQuestionIndex + 1} of ${questions.length}`;
+            questionTextEl.textContent = currentQuestion.question;
+            optionsContainer.innerHTML = '';
+            
+            const shuffledOptions = shuffleArray([...currentQuestion.options]);
+            
+            shuffledOptions.forEach(option => {
+                const button = document.createElement('button');
+                button.textContent = option;
+                button.classList.add('option-btn');
+                button.onclick = () => selectAnswer(option, button);
+                optionsContainer.appendChild(button);
+            });
+        }
+
+        function selectAnswer(selectedOption, button) {
+            const currentQuestion = questions[currentQuestionIndex];
+            const isCorrect = selectedOption === currentQuestion.answer;
+            
+            userAnswers[currentQuestionIndex] = selectedOption;
+
+            if (isCorrect) {
+                score++;
+                button.classList.add('correct');
+            } else {
+                button.classList.add('incorrect');
+                // Highlight the correct answer
+                Array.from(optionsContainer.children).forEach(btn => {
+                    if (btn.textContent === currentQuestion.answer) {
+                        btn.classList.add('correct');
+                    }
+                });
+            }
+
+            // Disable all option buttons
+            Array.from(optionsContainer.children).forEach(btn => {
+                btn.disabled = true;
+            });
+            
+            setTimeout(() => {
+                currentQuestionIndex++;
+                displayQuestion();
+            }, 1500);
+        }
+        
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                const minutes = Math.floor(timeLeft / 60);
+                const seconds = timeLeft % 60;
+                timerEl.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                
+                if (timeLeft <= 30) {
+                    timerEl.style.backgroundColor = '#dc3545';
+                }
+
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    showResults();
+                }
+            }, 1000);
+        }
+
+        function showResults() {
+            clearInterval(timerInterval);
+            quizScreen.classList.add('hidden');
+            resultsScreen.classList.remove('hidden');
+
+            resultsTitleEl.textContent = `Well done, ${studentName}!`;
+            scoreTextEl.textContent = `Your Score: ${score} / ${questions.length}`;
+
+            reviewSection.innerHTML = '';
+            let emailBody = `Quiz Results for: ${studentName}\nScore: ${score} / ${questions.length}\n\n--- Mistakes Review ---\n\n`;
+            
+            questions.forEach((q, index) => {
+                const userAnswer = userAnswers[index];
+                const isCorrect = userAnswer === q.answer;
+
+                const reviewEl = document.createElement('div');
+                reviewEl.classList.add('review-question');
+                reviewEl.innerHTML = `
+                    <p><b>Q${index + 1}:</b> ${q.question}</p>
+                    <p class="user-answer ${isCorrect ? 'correct' : 'incorrect'}">
+                        Your answer: ${userAnswer || "Not answered"} ${isCorrect ? '✔' : '✘'}
+                    </p>
+                    ${!isCorrect ? `<p class="correct-answer"><b>Correct answer:</b> ${q.answer}</p><p><i><b>Explanation:</b> ${q.explanation}</i></p>` : ''}
+                `;
+                reviewSection.appendChild(reviewEl);
+                
+                if(!isCorrect) {
+                   emailBody += `Question: ${q.question}\nYour Answer: ${userAnswer || "Not answered"}\nCorrect Answer: ${q.answer}\n\n`;
+                }
+            });
+            
+            emailLink.href = `mailto:ahmedsamiir991999@gmail.com?subject=Quiz Results for ${encodeURIComponent(studentName)}&body=${encodeURIComponent(emailBody)}`;
+        }
+
+    </script>
+</body>
+</html>
